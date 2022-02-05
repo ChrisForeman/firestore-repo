@@ -9,7 +9,14 @@ A small framework for implementing the repository pattern using Firestore.
 ```typescript
 const db = new admin.firestore.Firestore()
 
-return new Transaction(db).commit<UserRepo, [User, User]>(context => new UserRepo(context), async userRepo => {
+const data = {
+    userAId: 'userA',
+    userBId: 'userB',
+    userATradeItems: ['gold-wheels'],
+    userBTradeItems: []
+}
+
+await new Transaction(db).commit<UserRepo, [User, User]>(context => new UserRepo(context), async userRepo => {
 
     //Get the users making the trade
     const [userA, userB] = await Promise.all([
