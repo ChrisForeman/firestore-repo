@@ -1,5 +1,5 @@
 import { firestore } from 'firebase-admin'
-import { getDocData } from '../utils'
+import { getDocData } from '../utils/utils'
 import { DatabaseContext } from '../context/database-context'
 
 export interface FireDocument {
