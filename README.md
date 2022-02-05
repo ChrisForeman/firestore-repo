@@ -1,8 +1,8 @@
-<div align="center">
-  <a href="https://app.travis-ci.com/ChrisForeman/firestore-repo">
-    <img alt="build-status" src="https://app.travis-ci.com/ChrisForeman/firestore-repo.svg?branch=main" height="150px" />
+<p dir="auto">
+  <a target="_blank" rel="noopener noreferrer" href="https://app.travis-ci.com/ChrisForeman/firestore-repo">
+    <img alt="build-status" src="https://app.travis-ci.com/ChrisForeman/firestore-repo.svg?branch=main"/>
   </a>
-</div>
+</p>
 
 
 
