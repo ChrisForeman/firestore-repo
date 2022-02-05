@@ -16,7 +16,7 @@ const data = {
     userBTradeItems: []
 }
 
-await new Transaction(db).commit<UserRepo, [User, User]>(context => new UserRepo(context), async userRepo => {
+await new UnitOfWorkDefault(db).commit<UserRepo, [User, User]>(context => new UserRepo(context), async userRepo => {
 
     //Get the users making the trade
     const [userA, userB] = await Promise.all([
