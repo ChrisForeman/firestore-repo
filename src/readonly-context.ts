@@ -1,6 +1,6 @@
 import { firestore } from 'firebase-admin'
 import { DatabaseContext } from './database-context'
-import { BaseRepo } from '../repository/repository'
+import { BaseRepo } from './repository'
 
 export class ReadonlyContext implements DatabaseContext {
 

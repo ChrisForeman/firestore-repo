@@ -1,21 +1,7 @@
 import { firestore } from 'firebase-admin'
-import { getDocData } from '../utils/utils'
-import { DatabaseContext } from '../context/database-context'
-
-export interface FireDocument {
-    ref: firestore.DocumentReference
-    data: any
-}
-
-
-export interface Identifiable {
-    id: string
-}
-
-export type TrackingMode = 'Tracked' | 'Delete' | 'Create' | 'Untracked'
-
-export type DatabaseOp = 'Create' | 'Update' | 'Delete'
-
+import { getDocData } from './utils'
+import { DatabaseContext } from './database-context'
+import { DatabaseOp, FireDocument, Identifiable, TrackingMode } from './types'
 
 //TODO: Figure out solution to deleting aggregate branches when they are deleted in the aggregate root object.
 //Possible solution. Have an item track class that the user has to explicitly track the branches before adding them to the root 
@@ -40,14 +26,18 @@ export class BaseRepo<T extends Identifiable> {
         for (const curr of this.__items) {
             if (item.id === curr.model.id) {
                 if (curr.mode === 'Delete') {
+                    console.log('R1')
                     this.__items[i].mode = 'Tracked'
                 } else if (curr.mode === 'Untracked') {
+                    console.log('R2')
                     this.__items[i].mode = 'Create'
                 }
+                console.log('R0')
                 return
             }
             i += 1
         }
+        console.log('R3')
         this.__items.push({ model: item, mode: 'Create' })
     }
 

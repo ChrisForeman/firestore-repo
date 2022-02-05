@@ -2,7 +2,7 @@ import * as assert from 'assert'
 import { getDocData } from './utils'
 
 
-describe(`Utilies`, () => {
+describe(`Utils`, () => {
 
 
     describe(`#getDocData()`, () => {

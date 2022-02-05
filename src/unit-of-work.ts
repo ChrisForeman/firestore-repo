@@ -1,8 +1,8 @@
 import { firestore } from "firebase-admin"
-import { DatabaseContext } from "./context/database-context"
-import { ReadonlyContext } from "./context/readonly-context"
-import { TransactionContext } from "./context/transaction-context"
-import { BaseRepo } from "./repository/repository"
+import { DatabaseContext } from "./database-context"
+import { ReadonlyContext } from "./readonly-context"
+import { TransactionContext } from "./transaction-context"
+import { BaseRepo } from "./repository"
 
 
 //This interface is designed to update multipe aggregate roots which is a bad practice: https://stackoverflow.com/a/42104503/6738247

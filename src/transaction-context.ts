@@ -1,6 +1,6 @@
 import { firestore } from 'firebase-admin'
-import { BaseRepo } from '../repository/repository'
-import { TransactionContextDocumentTracker } from '../tracker/tracker'
+import { BaseRepo } from './repository'
+import { TransactionContextDocumentTracker } from './tracker'
 import { DatabaseContext } from './database-context'
 
 export class TransactionContext implements DatabaseContext {
@@ -56,7 +56,12 @@ export class TransactionContext implements DatabaseContext {
             const repos = this.toCollection(union)
             repos.forEach(repo => (repo as any).__items = []) //Force access internal props.
 
+            //And reset the tracker
+            this.tracker.reset()
+
             const workResult = await work(union)
+
+            console.log('REpo', repos.length, (repos[0] as any).__items)
 
             //Once work is done. We want to translate it to our database.
             const allOps = repos.map(repo => repo.operations()).flatMap(op => op)
