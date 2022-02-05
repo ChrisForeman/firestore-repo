@@ -1,0 +1,10 @@
+language: node_js
+node_js: 
+- 14.17.0
+cache: npm
+
+install: 
+- npm ci
+
+script:
+- npm test
