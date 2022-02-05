@@ -1,7 +1,7 @@
 
-A small framework for implementing the repository pattern using Firestore.
+## Purpose
 
-
+A lightweight framework for making DDD with Firestore easier via the repository pattern.
 
 
 ## Example 
