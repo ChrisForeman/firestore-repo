@@ -1,5 +1,6 @@
+# Documentation
 
-### Domain Driven Design
+## Domain Driven Design
 
 This package is designed to encourage focus on the domain rather than how it is persisted in Firestore.
 
@@ -65,7 +66,7 @@ class User {
 }
 ```
 
-### Creating a Repo
+## Creating a Repo
 
 The `BaseRepo<T>` class should be subclassed for any domain model that needs to be persisted in Firestore.
 
@@ -159,7 +160,7 @@ private getItems(names: string[]): Promise<Item[]> {
 }
 ```
 
-### Unit Of Work 
+## Unit Of Work 
 
 Now that the repo is completed we can use a UnitOfWork instance in tandem with the UserRepo to perform work on Firstore.
 
