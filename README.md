@@ -49,3 +49,6 @@ await new UnitOfWorkDefault(db).commit<UserRepo, [User, User]>(context => new Us
     console.log(`UserB inventory: ${userB.inventory}`)
 })
 ```
+
+
+## [View Documentation](https://github.com/ChrisForeman/firestore-repo/blob/main/docs.md)
