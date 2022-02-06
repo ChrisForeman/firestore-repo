@@ -4,14 +4,12 @@
   </a>
 </p>
 
+# Firestore Repo
 
+A lightweight framework for making DDD with Firestore easier via the repository pattern. 
+> Focus less on the which database fields to change and more on business logic.
 
-## Purpose
-
-A lightweight framework for making DDD with Firestore easier via the repository pattern.
-
-
-## Example 
+## Example - users trading items via firestore transaction
 
 ```typescript
 const db = new admin.firestore.Firestore()
