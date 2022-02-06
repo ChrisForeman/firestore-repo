@@ -9,6 +9,11 @@
 A lightweight framework for making DDD with Firestore easier via the repository pattern. 
 > Focus less on the which database fields to change and more on business logic.
 
+
+## Installation
+
+> npm i firestore-repo
+
 ## Example - users trading items via firestore transaction
 
 ```typescript
