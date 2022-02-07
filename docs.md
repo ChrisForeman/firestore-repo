@@ -77,6 +77,8 @@ Has methods (Do not override):
 Since the User model has been defined the UserRepo can be created.
 
 ```typescript
+import { BaseRepo } from 'firestore-repo'
+
 class UserRepo extends BaseRepo<User> {
 
 }
@@ -180,6 +182,8 @@ NOTE: Just like the Firebase `.runTransction()` closure can execute more that on
 
 
 ```typescript
+import { UnitOfWorkDefault } from 'firestore-repo'
+
 const db = new admin.firestore.Firestore()
 
 const data = {
