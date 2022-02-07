@@ -1,13 +1,14 @@
 {
   "name": "firestore-repo",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "mocha --exit --reporter spec --require ts-node/register 'src/**/*.ts'",
-    "coverage": "nyc npm run test"
+    "coverage": "nyc npm run test",
+    "publish": "tsc && npm publish"
   },
   "keywords": [],
   "author": "",
