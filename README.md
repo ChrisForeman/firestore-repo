@@ -57,7 +57,7 @@ await new UnitOfWorkDefault(db).commit<UserRepo, [User, User]>(context => new Us
 
 <div class="row" align="center">
     <img src="assets/userA.gif" alt="UserA" style="width:20em">
-    <img src="assets/userA.gif" alt="UserB" style="width:20em">
+    <img src="assets/userB.gif" alt="UserB" style="width:20em">
 </div>
 
 
