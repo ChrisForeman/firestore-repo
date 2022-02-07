@@ -1,0 +1,11 @@
+.DS_Store
+
+.nyc_output/
+
+src/
+
+.travis.yml
+
+docs.md
+
+tsconfig.json
