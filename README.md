@@ -61,4 +61,19 @@ await new UnitOfWorkDefault(db).commit<UserRepo, [User, User]>(context => new Us
 </div>
 
 
+## Supported Firestore Types
+
+| Type          | Supported     |
+| ------------- | ------------- |
+| String        |       ✅      |
+| Number        |       ✅      |
+| Boolean       |       ✅      |
+| Map           |       ✅      |
+| Array         |       ✅      |
+| Null          |       ✅      |
+| Timestamp     |       ✅      |
+| Geopoint      |       ❌      |
+| Reference     |       ❌      |
+
+
 ## [View Documentation](https://github.com/ChrisForeman/firestore-repo/blob/main/docs.md)
