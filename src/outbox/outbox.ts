@@ -32,7 +32,14 @@ export class Outbox extends BaseRepo<Event> {
             .orderBy('timeCreated', 'asc')
             .limit(1)
             .get()
-            .then(snap => snap.docs[0].data() as EventSchema)
+            .then(snap => {
+                if (snap.docs.length === 0) {
+                    const err: any = new Error('No events found.')
+                    err.code = 404
+                    throw err
+                }
+                return snap.docs[0].data() as EventSchema
+            })
         const event = this._toDomainEvent(schema)
         super.track(event)
         return event
