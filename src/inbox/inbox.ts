@@ -15,7 +15,20 @@ export class Inbox extends BaseRepo<Event> {
 
     get(id: string): Promise<Event> {
         const ref = this.context.db.collection(this._collectionPath).doc(id)
-        return ref.get().then(doc => doc.data() as Event)
+        return ref.get().then(doc => {
+            if (doc.exists) {
+                return doc.data() as Event
+            } else {
+                const err: any = new Error('Not found.')
+                err.code = 404
+                throw err
+            }
+        })
+    }
+
+    didProcessEvent(id: string): Promise<boolean> {
+        const ref = this.context.db.collection(this._collectionPath).doc(id)
+        return ref.get().then(doc => doc.exists)
     }
 
     protected toDocuments(item: Event): FireDocument[] {

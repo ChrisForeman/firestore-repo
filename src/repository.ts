@@ -1,4 +1,3 @@
-import { firestore } from 'firebase-admin'
 import { getDocData } from './utils'
 import { DatabaseContext } from './database-context'
 import { DatabaseOp, FireDocument, Identifiable, TrackingMode } from './types'
