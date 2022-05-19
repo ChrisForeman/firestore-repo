@@ -25,18 +25,14 @@ export class BaseRepo<T extends Identifiable> {
         for (const curr of this.__items) {
             if (item.id === curr.model.id) {
                 if (curr.mode === 'Delete') {
-                    console.log('R1')
                     this.__items[i].mode = 'Tracked'
                 } else if (curr.mode === 'Untracked') {
-                    console.log('R2')
                     this.__items[i].mode = 'Create'
                 }
-                console.log('R0')
                 return
             }
             i += 1
         }
-        console.log('R3')
         this.__items.push({ model: item, mode: 'Create' })
     }
 

@@ -75,7 +75,7 @@ export class TransactionContextDocumentTracker {
         } else if (typeof readField === 'object' && typeof writeField === 'object') {
             //Because its a decent chance a nested object might use the 'delete' method
             //Also it means we are using the field 
-            const keys: Set<string> = new Set<string>(Object.keys(readField).concat(writeField))
+            const keys: Set<string> = new Set<string>(Object.keys(readField).concat(Object.keys(writeField)))
             let hasNestedChange = false
             keys.forEach(key => {
                 if (this.hasNestedChange(readField[key], writeField[key])) {

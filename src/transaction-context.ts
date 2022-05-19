@@ -61,8 +61,6 @@ export class TransactionContext implements DatabaseContext {
 
             const workResult = await work(union)
 
-            console.log('REpo', repos.length, (repos[0] as any).__items)
-
             //Once work is done. We want to translate it to our database.
             const allOps = repos.map(repo => repo.operations()).flatMap(op => op)
 

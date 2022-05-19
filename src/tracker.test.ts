@@ -416,6 +416,37 @@ describe('Tracker', () => {
             })
         })
 
+        it(`returns data if the nested write object contains a new additional key not present in the read nested read object.`, () => {
+
+            const tracker = new TransactionContextDocumentTracker()
+
+            const path: string = 'root-collection'
+            const readData: Record<string, any> = {
+                nestedObject: {
+                    key1: 'value1',
+                    key2: 'value2',
+                }
+            }
+
+            tracker.track(path, readData)
+
+            const expected: Record<string, any> = {
+                nestedObject: {
+                    key1: 'value1',
+                    key2: 'value2',
+                    key3: 'value3'
+                }
+            }
+
+            const entries = Object.entries(tracker.changedData(path, expected))
+
+            assert.strictEqual(entries.length, 1)
+            entries.forEach(([k, v]) => {
+                assert.deepStrictEqual(v, expected[k])
+            })
+
+        })
+
 
 
 
