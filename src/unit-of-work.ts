@@ -20,6 +20,8 @@ export interface UnitOfWork {
     commit<T1 extends BaseRepo<any>, T2 extends BaseRepo<any>, T3 extends BaseRepo<any>, W>(repoRegistration: (context: DatabaseContext) => [T1, T2, T3], work: (repos: [T1, T2, T3]) => Promise<W>): Promise<W>
 
     commit<T1 extends BaseRepo<any>, T2 extends BaseRepo<any>, T3 extends BaseRepo<any>, T4 extends BaseRepo<any>, W>(repoRegistration: (context: DatabaseContext) => [T1, T2, T3, T4], work: (repos: [T1, T2, T3, T4]) => Promise<W>): Promise<W>
+
+    commit<T1 extends BaseRepo<any>, T2 extends BaseRepo<any>, T3 extends BaseRepo<any>, T4 extends BaseRepo<any>, T5 extends BaseRepo<any>, W>(repoRegistration: (context: DatabaseContext) => [T1, T2, T3, T4, T5], work: (repos: [T1, T2, T3, T4, T5]) => Promise<W>): Promise<W>
 }
 
 
