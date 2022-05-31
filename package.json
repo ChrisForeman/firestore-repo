@@ -1,6 +1,6 @@
 {
   "name": "firestore-repo",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "description": "",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -8,7 +8,7 @@
     "build": "tsc",
     "test": "mocha --exit --reporter spec --require ts-node/register 'src/**/*.ts'",
     "coverage": "nyc npm run test",
-    "publish": "tsc && npm publish"
+    "deploy": "tsc && npm publish"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +17,7 @@
     "@google-cloud/pubsub": "^2.19.0",
     "firebase-admin": "^10.0.1",
     "firebase-functions": "^3.21.1",
+    "nanoid": "^3.3.4",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

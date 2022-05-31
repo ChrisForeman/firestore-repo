@@ -5,6 +5,9 @@ import { DatabaseOp, FireDocument, Identifiable, TrackingMode } from './types'
 //TODO: Figure out solution to deleting aggregate branches when they are deleted in the aggregate root object.
 //Possible solution. Have an item track class that the user has to explicitly track the branches before adding them to the root 
 //and then during the toDocuments method, they have to update the item tracker with the new value of the branches from the root.
+/**
+ * @deprecated The will be removed in the next version. Please use the Repository<T> class.
+ */
 export class BaseRepo<T extends Identifiable> {
 
     readonly context: DatabaseContext

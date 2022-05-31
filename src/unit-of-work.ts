@@ -28,6 +28,9 @@ export interface UnitOfWork {
 
 export type ContextType = 'Default' | 'Transaction'
 
+/**
+ * @deprecated The will be removed in the next version. Please use the DBContext class.
+ */
 export class UnitOfWorkDefault {
 
     private db: firestore.Firestore
