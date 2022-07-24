@@ -1,15 +1,15 @@
 import * as assert from 'assert'
-import { TransactionContextDocumentTracker } from './tracker'
+import { DocumentTracker } from './document-tracker'
 import { firestore } from 'firebase-admin'
 
-describe('Tracker', () => {
+describe('DocumentTracker', () => {
 
 
     describe('#track()', () => {
 
         it(`records the document data read from firestore`, () => {
 
-            const tracker = new TransactionContextDocumentTracker()
+            const tracker = new DocumentTracker()
 
             const document = {
                 path: 'SomePath',
@@ -35,7 +35,7 @@ describe('Tracker', () => {
 
         it(`removes all tracked document reads`, () => {
 
-            const tracker = new TransactionContextDocumentTracker()
+            const tracker = new DocumentTracker()
 
             const document = {
                 path: 'SomePath',
@@ -69,7 +69,7 @@ describe('Tracker', () => {
 
         it(`returns undefined when there are not any fields that should be updated in the document`, () => {
 
-            const tracker = new TransactionContextDocumentTracker()
+            const tracker = new DocumentTracker()
 
             const currentTime = new Date().getTime()
 
@@ -151,7 +151,7 @@ describe('Tracker', () => {
 
         it(`returns correct update data if primitive field values are different`, () => {
 
-            const tracker = new TransactionContextDocumentTracker()
+            const tracker = new DocumentTracker()
 
             const path: string = 'root-collection'
             const readData: Record<string, any> = {
@@ -178,7 +178,7 @@ describe('Tracker', () => {
 
         it(`returns correct update data if read field is undefined and null is written`, () => {
 
-            const tracker = new TransactionContextDocumentTracker()
+            const tracker = new DocumentTracker()
 
             const path: string = 'root-collection'
             const readData: Record<string, any> = {
@@ -201,7 +201,7 @@ describe('Tracker', () => {
 
         it(`returns correct update data if nested primitive field values are different`, () => {
 
-            const tracker = new TransactionContextDocumentTracker()
+            const tracker = new DocumentTracker()
 
             const path: string = 'root-collection'
             const readData: Record<string, any> = {
@@ -238,7 +238,7 @@ describe('Tracker', () => {
 
         it(`only sets fields to delete if they existed in the read data, but not in write data`, () => {
 
-            const tracker = new TransactionContextDocumentTracker()
+            const tracker = new DocumentTracker()
 
             const path: string = 'root-collection'
             const readData: Record<string, any> = {
@@ -266,7 +266,7 @@ describe('Tracker', () => {
 
         it(`returns data if the nested item was implicitly undefined (deleted)`, () => {
 
-            const tracker = new TransactionContextDocumentTracker()
+            const tracker = new DocumentTracker()
 
             const path: string = 'root-collection'
             const readData: Record<string, any> = {
@@ -295,7 +295,7 @@ describe('Tracker', () => {
 
         it(`returns data if the nested read item is null, but the nested write item is a non-null object`, () => {
 
-            const tracker = new TransactionContextDocumentTracker()
+            const tracker = new DocumentTracker()
 
             const path: string = 'root-collection'
             const readData: Record<string, any> = {
@@ -322,7 +322,7 @@ describe('Tracker', () => {
 
         it(`returns data if the nested read item is non-null object, but the nested write item is a null object`, () => {
 
-            const tracker = new TransactionContextDocumentTracker()
+            const tracker = new DocumentTracker()
 
             const path: string = 'root-collection'
             const readData: Record<string, any> = {
@@ -349,7 +349,7 @@ describe('Tracker', () => {
 
         it(`returns undefined if both the nested read and write objects are null`, () => {
 
-            const tracker = new TransactionContextDocumentTracker()
+            const tracker = new DocumentTracker()
 
             const path: string = 'root-collection'
             const readData: Record<string, any> = {
@@ -369,7 +369,7 @@ describe('Tracker', () => {
         })
 
         it(`returns data if top-level array length was modified`, () => {
-            const tracker = new TransactionContextDocumentTracker()
+            const tracker = new DocumentTracker()
 
             const path: string = 'root-collection'
             const readData: Record<string, any> = {
@@ -391,7 +391,7 @@ describe('Tracker', () => {
         })
 
         it(`returns data if nested array was modified`, () => {
-            const tracker = new TransactionContextDocumentTracker()
+            const tracker = new DocumentTracker()
 
             const path: string = 'root-collection'
             const readData: Record<string, any> = {
@@ -418,7 +418,7 @@ describe('Tracker', () => {
 
         it(`returns data if the nested write object contains a new additional key not present in the read nested read object.`, () => {
 
-            const tracker = new TransactionContextDocumentTracker()
+            const tracker = new DocumentTracker()
 
             const path: string = 'root-collection'
             const readData: Record<string, any> = {

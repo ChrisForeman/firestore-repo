@@ -4,7 +4,7 @@ import { firestore } from "firebase-admin"
 /**
  * This class tracks documents when they are read and can be used to determine if a document has changed since it has been read last.
  */
-export class TransactionContextDocumentTracker {
+export class DocumentTracker {
 
     /**
      * A map where its keys are associated with a document's path and the values are the document's data.
