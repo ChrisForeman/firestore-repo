@@ -1,79 +1,78 @@
+
 <p dir="auto">
   <a target="_blank" rel="noopener noreferrer" href="https://app.travis-ci.com/ChrisForeman/firestore-repo">
     <img alt="build-status" src="https://app.travis-ci.com/ChrisForeman/firestore-repo.svg?branch=main"/>
   </a>
 </p>
+<p align="center">
+  <h1 align="center">Firestore Repo</h1>
+  <p align="center">
+A lightweight framework for implementing the repository pattern via Firestore.
+  </p>
+</p>
 
-# Firestore Repo
+## Introduction
 
-A lightweight framework for making DDD with Firestore easier via the repository pattern. 
-> Focus less on the which database fields to change and more on business logic.
+Firestore Repo is a framework aimed at creating business and application code that is implementation-agnostic. 
 
+Advantages to this approach:
+• Testable application and business code
+• Understandable code
+• Help avoid product lock in. Perhaps swap implementation out for a different database product.
 
 ## Installation
 
-> npm i firestore-repo
-
-## Example - users trading items via firestore transaction
-
-```typescript
-const db = new admin.firestore.Firestore()
-
-const data = {
-    userAId: 'userA',
-    userBId: 'userB',
-    userATradeItems: ['gold-wheels'],
-    userBTradeItems: []
-}
-
-await new UnitOfWorkDefault(db).commit<UserRepo, [User, User]>(context => new UserRepo(context), async userRepo => {
-
-    //Get the users making the trade
-    const [userA, userB] = await Promise.all([
-        userRepo.get(data.userAId),
-        userRepo.get(data.userBId)
-    ])
-
-    //Transfer items: userB => userA.
-    data.userATradeItems.forEach(name => {
-        const item = userA.removeItem(name)
-        userB.addItem(item)
-    })
-
-    //Transfer items: userA => userB.
-    data.userBTradeItems.forEach(name => {
-        const item = userB.removeItem(name)
-        userA.addItem(item)
-    })
-
-    return [userA, userB]
-
-}).then(([userA, userB]) => {
-    console.log('Trade result saved to firestore!')
-    console.log(`UserA inventory: ${userA.inventory}`)
-    console.log(`UserB inventory: ${userB.inventory}`)
-})
+```sh
+npm i firestore-repo
 ```
 
-<div class="row" align="center">
-    <img src="assets/userA.gif" alt="UserA" style="width:20em">
-    <img src="assets/userB.gif" alt="UserB" style="width:20em">
-</div>
+## Basic usage
+Example: A basic application for managing user tasks. This Service class indirectly depends on Firestore through dependency injection. It could then be used within an express app to build a rest api.
+```typescript
+class Service {
 
+    private _runTransaction: TransactionBlock
 
-## Supported Firestore Types
+    constructor(factory: UnitOfWorkFactory) {
+        this._runTransaction = handler => factory.create(handler)
+    }
+    
+	//Creates a new user Task in firestore.
+    createTask(name: string, deadline: Date | undefined, assignedUser: string | undefined): Promise<Task> {
+        return this._runTransaction(async uow => {
+            const newTask = new Task('someRandomId', name, deadline, assignedUser)
+            uow.tasks.add(newTask)
+            return newTask
+        })
+    }
+    
+	//Retrieves a new user Task in firestore.
+    getTask(id: string): Promise<Task> {
+        return this._runTransaction(uow => uow.tasks.get(id))
+    }
+    
+	//Updates a user Task in firestore.
+    updateTask(id: string, name: string | undefined, deadline: Date | undefined, assignedUser: string | undefined): Promise<Task> {
+        return this._runTransaction(async uow => {
+            const task = await uow.tasks.get(id)
+            if (name !== undefined) {
+                task.name = name
+            }
+            if (deadline && assignedUser) {
+                task.assign(assignedUser, deadline)
+            }
+            return task
+        })
+    }
+	
+	//Removes a Task from firestore.
+    deleteTask(id: string): Promise<Task> {
+        return this._runTransaction(async uow => {
+            const task = await uow.tasks.get(id)
+            uow.tasks.remove(task)
+            return task
+        })
+    }
 
-| Type          | Supported     |
-| ------------- | ------------- |
-| String        |       ✅      |
-| Number        |       ✅      |
-| Boolean       |       ✅      |
-| Map           |       ✅      |
-| Array         |       ✅      |
-| Null          |       ✅      |
-| Timestamp     |       ✅      |
-| Geopoint      |       ❌      |
-| Reference     |       ❌      |
-
-
-## [View Documentation](https://github.com/ChrisForeman/firestore-repo/blob/main/docs.md)
+}
+```
