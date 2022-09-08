@@ -289,6 +289,7 @@ export class DocumentSnapshot {
     this.createTime = snapshot.createTime;
     this.updateTime = snapshot.updateTime;
     this.readTime = snapshot.readTime;
+    this._data = snapshot.data();
   }
 
   /**
