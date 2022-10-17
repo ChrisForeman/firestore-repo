@@ -66,7 +66,8 @@ export class Outbox extends Repository<OutboxEvent> {
 
   private _compressData(data: any): Promise<any> {
     if (this._compression === 'gzip') {
-      return this._gzip(data);
+      const json = JSON.stringify(data);
+      return this._gzip(json);
     }
     return data;
   }
