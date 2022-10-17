@@ -3,6 +3,7 @@ import { Repository } from './repository';
 import { randomId } from './utils';
 import { Transaction } from './transaction';
 import { CollectionReference, DocumentReference } from './wrapped';
+import * as zlib from 'zlib';
 
 export type OutboxEvent = {
   id: string;
@@ -13,12 +14,17 @@ export type OutboxEvent = {
   data: any;
 };
 
-export class Outbox extends Repository<OutboxEvent> {
-  private _collection: CollectionReference;
+export type Compression = 'none' | 'gzip';
 
-  constructor(collectionPath: string, transaction: Transaction) {
+export class Outbox extends Repository<OutboxEvent> {
+  private readonly _collection: CollectionReference;
+
+  private readonly _compression: Compression;
+
+  constructor(collectionPath: string, transaction: Transaction, compression: Compression) {
     super(transaction);
     this._collection = transaction.context.collection(collectionPath);
+    this._compression = compression;
   }
 
   queue(data: any, topic: string): string {
@@ -52,10 +58,35 @@ export class Outbox extends Repository<OutboxEvent> {
     return event;
   }
 
-  protected toDocuments(item: OutboxEvent): {
-    ref: DocumentReference;
-    data: any;
-  }[] {
-    return [{ ref: this._collection.doc(item.id), data: item }];
+  private _compressData(data: any): Promise<any> {
+    if (this._compression === 'gzip') {
+      return this._gzip(data);
+    }
+    return data;
+  }
+
+  private _gzip(data: any): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
+      zlib.gzip(data, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+
+  protected async toDocuments(item: OutboxEvent): Promise<{ ref: DocumentReference; data: any }[]> {
+    const compressedMessage = {
+      ...item,
+      data: await this._compressData(item.data),
+    };
+    return Promise.resolve([
+      {
+        ref: this._collection.doc(item.id),
+        data: compressedMessage,
+      },
+    ]);
   }
 }

@@ -47,10 +47,12 @@ export class Repository<T extends Identifiable> {
     this.__items.push({ model: item, mode: 'Delete' });
   }
 
-  protected toDocuments(item: T): {
-    ref: DocumentReference;
-    data: any;
-  }[] {
+  protected async toDocuments(item: T): Promise<
+    {
+      ref: DocumentReference;
+      data: any;
+    }[]
+  > {
     throw new Error('Unimplemented: toDocuments() has not been implemented.');
   }
 
@@ -74,23 +76,26 @@ export class Repository<T extends Identifiable> {
    * Do not override. Used internally.
    * @returns
    */
-  operations(): RepoOp[] {
+  async operations(): Promise<RepoOp[]> {
     const ops: RepoOp[] = [];
-    this.__items.forEach(({ model, mode }) => {
-      if (mode === 'Create') {
-        this.toDocuments(model).forEach((doc) => {
-          ops.push({ opType: 'Create', doc: doc });
-        });
-      } else if (mode === 'Delete') {
-        this.toDocuments(model).forEach((doc) => {
-          ops.push({ opType: 'Delete', doc: doc });
-        });
-      } else if (mode === 'Tracked') {
-        this.toDocuments(model).forEach((doc) => {
-          ops.push({ opType: 'Update', doc: doc });
-        });
-      }
-    });
+    await Promise.all(
+      this.__items.map(async ({ model, mode }) => {
+        const docs = await this.toDocuments(model);
+        if (mode === 'Create') {
+          docs.forEach((doc) => {
+            ops.push({ opType: 'Create', doc: doc });
+          });
+        } else if (mode === 'Delete') {
+          docs.forEach((doc) => {
+            ops.push({ opType: 'Delete', doc: doc });
+          });
+        } else if (mode === 'Tracked') {
+          docs.forEach((doc) => {
+            ops.push({ opType: 'Update', doc: doc });
+          });
+        }
+      })
+    );
     return ops;
   }
 }

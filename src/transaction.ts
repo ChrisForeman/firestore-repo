@@ -27,8 +27,9 @@ export class Transaction {
     this._repos.push(repo);
   }
 
-  commit(): void {
-    const repoOps = this._repos.map((r) => r.operations()).flatMap((op) => op);
+  async commit(): Promise<void> {
+    const nestedOps = await Promise.all(this._repos.map((r) => r.operations()));
+    const repoOps = nestedOps.flatMap((op) => op);
 
     for (const { opType, doc } of repoOps) {
       if (opType === 'Create') {

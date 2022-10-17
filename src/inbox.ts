@@ -37,10 +37,7 @@ export class Inbox extends Repository<Event> {
       .then((doc) => doc.exists);
   }
 
-  protected toDocuments(item: Event): {
-    ref: DocumentReference;
-    data: any;
-  }[] {
-    return [{ ref: this._collection.doc(item.id), data: item }];
+  protected toDocuments(item: Event): Promise<{ ref: DocumentReference; data: any }[]> {
+    return Promise.resolve([{ ref: this._collection.doc(item.id), data: item }]);
   }
 }
