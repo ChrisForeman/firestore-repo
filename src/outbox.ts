@@ -16,12 +16,18 @@ export type OutboxEvent = {
 
 export type Compression = 'none' | 'gzip';
 
+type OutboxConstructorData = {
+  collectionPath: string;
+  transaction: Transaction;
+  compression: Compression;
+};
+
 export class Outbox extends Repository<OutboxEvent> {
   private readonly _collection: CollectionReference;
 
   private readonly _compression: Compression;
 
-  constructor(collectionPath: string, transaction: Transaction, compression: Compression) {
+  constructor({ collectionPath, transaction, compression }: OutboxConstructorData) {
     super(transaction);
     this._collection = transaction.context.collection(collectionPath);
     this._compression = compression;
