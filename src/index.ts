@@ -10,12 +10,14 @@ import {
 } from './wrapped';
 import { EventDTO } from './types';
 import { decodeMessage } from './utils';
+import { OutboxWorker } from './outbox-worker';
 
 export {
   Outbox,
   Inbox,
   EventDTO,
-  /*OutboxWorker,*/ Repository,
+  OutboxWorker,
+  Repository,
   Transaction,
   CollectionReference,
   DocumentReference,
