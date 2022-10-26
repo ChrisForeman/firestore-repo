@@ -20,3 +20,11 @@ export type Message = {
   timeSent: Date;
   data: any;
 };
+
+export type EventDTO = {
+  id: string;
+  topic: string;
+  timeCreated: string; //iso8601 zulu date
+  timeSent: string; //iso8601 zulu date
+  data: any;
+};
