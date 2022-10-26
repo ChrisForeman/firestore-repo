@@ -14,23 +14,17 @@ export type OutboxEvent = {
   data: any;
 };
 
-export type Compression = 'none' | 'gzip';
-
 type OutboxConstructorData = {
   collectionPath: string;
   transaction: Transaction;
-  compression: Compression;
 };
 
 export class Outbox extends Repository<OutboxEvent> {
   private readonly _collection: CollectionReference;
 
-  private readonly _compression: Compression;
-
-  constructor({ collectionPath, transaction, compression }: OutboxConstructorData) {
+  constructor({ collectionPath, transaction }: OutboxConstructorData) {
     super(transaction);
     this._collection = transaction.context.collection(collectionPath);
-    this._compression = compression;
   }
 
   queue(data: any, topic: string): string {
@@ -65,11 +59,8 @@ export class Outbox extends Repository<OutboxEvent> {
   }
 
   private _compressData(data: any): Promise<any> {
-    if (this._compression === 'gzip') {
-      const json = JSON.stringify(data);
-      return this._gzip(json);
-    }
-    return data;
+    const json = JSON.stringify(data);
+    return this._gzip(json);
   }
 
   private _gzip(data: any): Promise<any> {

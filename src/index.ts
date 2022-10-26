@@ -10,6 +10,8 @@ import {
   DocumentSnapshot,
 } from './wrapped';
 
+import { decodeMessage } from './utils';
+
 export {
   Outbox,
   Inbox,
@@ -20,4 +22,5 @@ export {
   DocumentReference,
   DocumentSnapshot,
   QueryDocumentSnapshot,
+  decodeMessage,
 };
