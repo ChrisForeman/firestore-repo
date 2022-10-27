@@ -44,6 +44,5 @@ export async function decodeMessage(data: any): Promise<Message> {
   // this package internally compresses message data using gzip.
   const unzipped = await gunzip(Buffer.from(message.data)); // need to convert string to buffer
   message.data = JSON.parse(unzipped.toString());
-  console.log(message);
   return message;
 }
