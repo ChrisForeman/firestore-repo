@@ -1,5 +1,7 @@
+import { PubSub } from '@google-cloud/pubsub';
 import { firestore } from 'firebase-admin';
 import * as zlib from 'zlib';
+import { OutboxEvent } from './outbox';
 import { Message } from './types';
 
 export function getDocData(doc: firestore.DocumentSnapshot): any {
@@ -45,4 +47,45 @@ export async function decodeMessage(data: any): Promise<Message> {
   const unzipped = await gunzip(Buffer.from(message.data)); // need to convert string to buffer
   message.data = JSON.parse(unzipped.toString());
   return message;
+}
+
+function gzip(data: any): Promise<any> {
+  return new Promise<any>((resolve, reject) => {
+    zlib.gzip(data, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+}
+
+function compressData(data: any): Promise<any> {
+  const json = JSON.stringify(data);
+  return gzip(json);
+}
+
+/**
+ * Publishes a message to pubsub where the nested message data is compressed via gzip.
+ * @param pubsub The pubsub object in use.
+ * @param topic The topic to publish the message to.
+ * @param data The nested data to within the message object.
+ * @returns The entire message.
+ */
+export async function publishMessage(
+  pubsub: PubSub,
+  topic: string,
+  data: any
+): Promise<OutboxEvent> {
+  const event: OutboxEvent = {
+    id: randomId(),
+    topic: topic,
+    timeCreated: firestore.Timestamp.now(),
+    timeSent: firestore.Timestamp.now(),
+    sentToBus: true,
+    data: await compressData(data),
+  };
+  await pubsub.topic(topic).publishMessage({ json: event });
+  return event;
 }
