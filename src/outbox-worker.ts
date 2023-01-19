@@ -31,7 +31,7 @@ function buildDocument(
 export function OutboxWorker(
   outboxPath: string,
   bus: PubSub,
-  options?: { regions?: string; runtime?: functions.RuntimeOptions }
+  options?: { regions?: string; runtime?: functions.RuntimeOptions; deleteOnSuccess?: boolean }
 ): Worker {
   const segments = outboxPath.split('/');
   if (segments.length % 2 === 0) {
@@ -46,6 +46,10 @@ export function OutboxWorker(
     schema.timeSent = firestore.Timestamp.now();
     // send to pubsub first to guaruntee at least once delivery incase it fails.
     await bus.topic(schema.topic).publishMessage({ json: toDTO(schema, new Date()) });
-    await snapshot.ref.update(schema);
+    if (options?.deleteOnSuccess) {
+      await snapshot.ref.delete();
+    } else {
+      await snapshot.ref.update(schema);
+    }
   });
 }
