@@ -1,6 +1,7 @@
 import { PubSub } from '@google-cloud/pubsub';
 import { firestore } from 'firebase-admin';
 import * as functions from 'firebase-functions';
+import { runWith } from 'firebase-functions';
 import { OutboxEvent } from './outbox';
 import { EventDTO } from './types';
 
@@ -18,26 +19,38 @@ function toDTO(event: OutboxEvent, timeSent: Date): EventDTO {
 
 function buildDocument(
   outboxPath: string,
-  region?: string
+  regions?: string[],
+  runtimeOptions?: functions.RuntimeOptions
 ): functions.firestore.DocumentBuilder<string> {
   const path = `${outboxPath}/{docId}`;
-  if (region) {
-    return functions.region(region).firestore.document(path);
-  } else {
-    return functions.firestore.document(path);
+  let func: functions.FunctionBuilder = functions as any; // functions isn't a function builder type but it has all the same props.
+  if (regions) {
+    func = func.region(...regions);
   }
+  if (runtimeOptions) {
+    func = func.runWith(runtimeOptions);
+  }
+  return func.firestore.document(path);
 }
 
-export function OutboxWorker(
-  outboxPath: string,
-  bus: PubSub,
-  options?: { regions?: string; runtime?: functions.RuntimeOptions; deleteOnSuccess?: boolean }
-): Worker {
+export function OutboxWorker({
+  outboxPath,
+  bus,
+  regions,
+  runtime,
+  deleteOnPublish,
+}: {
+  outboxPath: string;
+  bus: PubSub;
+  regions?: string[];
+  runtime?: functions.RuntimeOptions;
+  deleteOnPublish?: boolean;
+}): Worker {
   const segments = outboxPath.split('/');
   if (segments.length % 2 === 0) {
     throw new Error('Invalid number of segments in path. Must be odd.');
   }
-  return buildDocument(outboxPath, options?.regions).onCreate(async (snapshot, context) => {
+  return buildDocument(outboxPath, regions, runtime).onCreate(async (snapshot, context) => {
     const schema = snapshot.data() as OutboxEvent;
     if (schema.sentToBus === true) {
       return;
@@ -46,7 +59,7 @@ export function OutboxWorker(
     schema.timeSent = firestore.Timestamp.now();
     // send to pubsub first to guaruntee at least once delivery incase it fails.
     await bus.topic(schema.topic).publishMessage({ json: toDTO(schema, new Date()) });
-    if (options?.deleteOnSuccess) {
+    if (deleteOnPublish) {
       await snapshot.ref.delete();
     } else {
       await snapshot.ref.update(schema);
