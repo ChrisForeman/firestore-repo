@@ -9,7 +9,7 @@ import {
   DocumentSnapshot,
 } from './wrapped';
 import { EventDTO } from './types';
-import { decodeMessage } from './utils';
+import { decodeMessage, publishMessage } from './utils';
 import { OutboxWorker } from './outbox-worker';
 
 export {
@@ -24,4 +24,5 @@ export {
   DocumentSnapshot,
   QueryDocumentSnapshot,
   decodeMessage,
+  publishMessage,
 };
