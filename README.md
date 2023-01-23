@@ -51,7 +51,7 @@ Although flexibility in testing and functionality extension are some pros to usi
 ### Domain Model
 
 This application will be a task management system and will need a domain model to represent those tasks and operations that can be performed them.
-Normally it makes sense to create the Domain model as a class so it can be properly encapsulated for simplicity a type will suffice.
+Normally it makes sense to create the Domain model as a class so it can be properly encapsulated, but for simplicity a type will suffice.
 The only limitation on the domain model is that it must have a property `id:string` to identify itself uniquely among all other records.
 
 ```typescript
@@ -68,7 +68,7 @@ type Task = {
 
 ### Repository
 
-First the type of the repository must be defined to keep the code unit testable.
+The type of the repository must be defined to keep the code unit testable.
 The repository will act like a collection where Tasks can be add, removed, and retrieved.
 
 ```typescript
@@ -80,7 +80,7 @@ type TaskRepository = {
 ```
 
 The Repository can now be implemented using the Firebase Admin SDK and this package's Repository class.
-The Repository superclass already implements #add() #remove() so all that is left is #get().
+The Repository superclass already implements `#add()` and `#remove()` so all that is left is `#get()`.
 
 ```typescript
 class FirestoreTaskRepository extends Repository implements TaskRepository {
