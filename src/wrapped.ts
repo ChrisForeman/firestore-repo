@@ -66,6 +66,106 @@ export class Query {
   }
 
   /**
+   * Creates and returns a new Query that starts at the provided document
+   * (inclusive). The starting position is relative to the order of the query.
+   * The document must contain all of the fields provided in the orderBy of
+   * this query.
+   *
+   * @param snapshot The snapshot of the document to start after.
+   * @return The created Query.
+   */
+
+  startAt(snapshot: DocumentSnapshot): Query;
+  /**
+   * Creates and returns a new Query that starts at the provided fields
+   * relative to the order of the query. The order of the field values
+   * must match the order of the order by clauses of the query.
+   *
+   * @param fieldValues The field values to start this query at, in order
+   * of the query's order by.
+   * @return The created Query.
+   */
+  startAt(...fieldValues: any[]): Query;
+  startAt(args: any): Query {
+    return new Query(this._query.startAt(args), this._tracker);
+  }
+
+  /**
+   * Creates and returns a new Query that starts after the provided document
+   * (exclusive). The starting position is relative to the order of the query.
+   * The document must contain all of the fields provided in the orderBy of
+   * this query.
+   *
+   * @param snapshot The snapshot of the document to start after.
+   * @return The created Query.
+   */
+  startAfter(snapshot: DocumentSnapshot): Query;
+
+  /**
+   * Creates and returns a new Query that starts after the provided fields
+   * relative to the order of the query. The order of the field values
+   * must match the order of the order by clauses of the query.
+   *
+   * @param fieldValues The field values to start this query after, in order
+   * of the query's order by.
+   * @return The created Query.
+   */
+  startAfter(...fieldValues: any[]): Query;
+  startAfter(args: any): Query {
+    return new Query(this._query.startAfter(args), this._tracker);
+  }
+
+  /**
+   * Creates and returns a new Query that ends before the provided document
+   * (exclusive). The end position is relative to the order of the query. The
+   * document must contain all of the fields provided in the orderBy of this
+   * query.
+   *
+   * @param snapshot The snapshot of the document to end before.
+   * @return The created Query.
+   */
+  endBefore(snapshot: DocumentSnapshot): Query;
+
+  /**
+   * Creates and returns a new Query that ends before the provided fields
+   * relative to the order of the query. The order of the field values
+   * must match the order of the order by clauses of the query.
+   *
+   * @param fieldValues The field values to end this query before, in order
+   * of the query's order by.
+   * @return The created Query.
+   */
+  endBefore(...fieldValues: any[]): Query;
+  endBefore(args: any): Query {
+    return new Query(this._query.endBefore(args), this._tracker);
+  }
+
+  /**
+   * Creates and returns a new Query that ends at the provided document
+   * (inclusive). The end position is relative to the order of the query. The
+   * document must contain all of the fields provided in the orderBy of this
+   * query.
+   *
+   * @param snapshot The snapshot of the document to end at.
+   * @return The created Query.
+   */
+  endAt(snapshot: DocumentSnapshot): Query;
+
+  /**
+   * Creates and returns a new Query that ends at the provided fields
+   * relative to the order of the query. The order of the field values
+   * must match the order of the order by clauses of the query.
+   *
+   * @param fieldValues The field values to end this query at, in order
+   * of the query's order by.
+   * @return The created Query.
+   */
+  endAt(...fieldValues: any[]): Query;
+  endAt(args: any): Query {
+    return new Query(this._query.endAt(args), this._tracker);
+  }
+
+  /**
    * Executes the query and returns the results as a `QuerySnapshot`.
    *
    * @return A Promise that will be resolved with the results of the Query.
