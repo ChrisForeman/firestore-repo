@@ -7,6 +7,7 @@ import {
   DocumentReference,
   QueryDocumentSnapshot,
   DocumentSnapshot,
+  Query,
 } from './wrapped';
 import { EventDTO } from './types';
 import { decodeMessage, publishMessage } from './utils';
@@ -25,4 +26,5 @@ export {
   QueryDocumentSnapshot,
   decodeMessage,
   publishMessage,
+  Query,
 };
