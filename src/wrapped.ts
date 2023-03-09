@@ -87,7 +87,11 @@ export class Query {
    */
   startAt(...fieldValues: any[]): Query;
   startAt(args: any): Query {
-    return new Query(this._query.startAt(args), this._tracker);
+    if (args instanceof DocumentSnapshot) {
+      return new Query(this._query.startAt(args.wrapped), this._tracker);
+    } else {
+      return new Query(this._query.startAt(args), this._tracker);
+    }
   }
 
   /**
@@ -112,7 +116,11 @@ export class Query {
    */
   startAfter(...fieldValues: any[]): Query;
   startAfter(args: any): Query {
-    return new Query(this._query.startAfter(args), this._tracker);
+    if (args instanceof DocumentSnapshot) {
+      return new Query(this._query.startAfter(args.wrapped), this._tracker);
+    } else {
+      return new Query(this._query.startAfter(args), this._tracker);
+    }
   }
 
   /**
@@ -137,7 +145,11 @@ export class Query {
    */
   endBefore(...fieldValues: any[]): Query;
   endBefore(args: any): Query {
-    return new Query(this._query.endBefore(args), this._tracker);
+    if (args instanceof DocumentSnapshot) {
+      return new Query(this._query.endBefore(args.wrapped), this._tracker);
+    } else {
+      return new Query(this._query.endBefore(args), this._tracker);
+    }
   }
 
   /**
@@ -162,7 +174,11 @@ export class Query {
    */
   endAt(...fieldValues: any[]): Query;
   endAt(args: any): Query {
-    return new Query(this._query.endAt(args), this._tracker);
+    if (args instanceof DocumentSnapshot) {
+      return new Query(this._query.endAt(args.wrapped), this._tracker);
+    } else {
+      return new Query(this._query.endAt(args), this._tracker);
+    }
   }
 
   /**
@@ -349,47 +365,57 @@ export class DocumentReference {
 }
 
 export class DocumentSnapshot {
-  /** True if the document exists. */
-  readonly exists: boolean;
+  private _wrapped: firestore.DocumentSnapshot<firestore.DocumentData>;
 
   /** A `DocumentReference` to the document location. */
   readonly ref: DocumentReference;
-
-  /**
-   * The ID of the document for which this `DocumentSnapshot` contains data.
-   */
-  readonly id: string;
-
-  /**
-   * The time the document was created. Not set for documents that don't
-   * exist.
-   */
-  readonly createTime?: firestore.Timestamp;
-
-  /**
-   * The time the document was last updated (at the time the snapshot was
-   * generated). Not set for documents that don't exist.
-   */
-  readonly updateTime?: firestore.Timestamp;
-
-  /**
-   * The time this snapshot was read.
-   */
-  readonly readTime: firestore.Timestamp;
-
-  private _data: firestore.DocumentData | undefined;
 
   constructor(
     ref: DocumentReference,
     snapshot: firestore.DocumentSnapshot<firestore.DocumentData>
   ) {
-    this.exists = snapshot.exists;
     this.ref = ref;
-    this.id = snapshot.id;
-    this.createTime = snapshot.createTime;
-    this.updateTime = snapshot.updateTime;
-    this.readTime = snapshot.readTime;
-    this._data = snapshot.data();
+    this._wrapped = snapshot;
+  }
+
+  /* @internal */
+  get wrapped(): firestore.DocumentSnapshot<firestore.DocumentData> {
+    return this._wrapped;
+  }
+
+  /** True if the document exists. */
+  get exists(): boolean {
+    return this._wrapped.exists;
+  }
+
+  /**
+   * The ID of the document for which this `DocumentSnapshot` contains data.
+   */
+  get id(): string {
+    return this._wrapped.id;
+  }
+
+  /**
+   * The time the document was created. Not set for documents that don't
+   * exist.
+   */
+  get createTime(): firestore.Timestamp | undefined {
+    return this._wrapped.createTime;
+  }
+
+  /**
+   * The time the document was last updated (at the time the snapshot was
+   * generated). Not set for documents that don't exist.
+   */
+  get updateTime(): firestore.Timestamp | undefined {
+    return this._wrapped.updateTime;
+  }
+
+  /**
+   * The time this snapshot was read.
+   */
+  get readTime(): firestore.Timestamp {
+    return this._wrapped.readTime;
   }
 
   /**
@@ -399,6 +425,6 @@ export class DocumentSnapshot {
    * @return An Object containing all fields in the document.
    */
   data(): firestore.DocumentData | undefined {
-    return this._data;
+    return this._wrapped.data();
   }
 }
