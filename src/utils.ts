@@ -76,10 +76,11 @@ function compressData(data: any): Promise<any> {
 export async function publishMessage(
   pubsub: PubSub,
   topic: string,
-  data: any
+  data: any,
+  messageId?: string
 ): Promise<OutboxEvent> {
   const event: OutboxEvent = {
-    id: randomId(),
+    id: messageId ?? randomId(),
     topic: topic,
     timeCreated: firestore.Timestamp.now(),
     timeSent: firestore.Timestamp.now(),
