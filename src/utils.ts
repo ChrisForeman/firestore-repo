@@ -2,7 +2,7 @@ import { PubSub } from '@google-cloud/pubsub';
 import { firestore } from 'firebase-admin';
 import * as zlib from 'zlib';
 import { OutboxEvent } from './outbox';
-import { Message } from './types';
+import { EventDTO, Message } from './types';
 
 export function getDocData(doc: firestore.DocumentSnapshot): any {
   if (!doc.exists) {
@@ -66,6 +66,14 @@ function compressData(data: any): Promise<any> {
   return gzip(json);
 }
 
+const dtoEvent = (event: OutboxEvent, timeSent: Date): EventDTO => ({
+  id: event.id,
+  topic: event.topic,
+  timeCreated: event.timeCreated.toDate().toISOString(),
+  timeSent: timeSent.toISOString(),
+  data: event.data,
+});
+
 /**
  * Publishes a message to pubsub where the nested message data is compressed via gzip.
  * @param pubsub The pubsub object in use.
@@ -87,6 +95,7 @@ export async function publishMessage(
     sentToBus: true,
     data: await compressData(data),
   };
-  await pubsub.topic(topic).publishMessage({ json: event });
+  const json = dtoEvent(event, new Date());
+  await pubsub.topic(topic).publishMessage({ json });
   return event;
 }
