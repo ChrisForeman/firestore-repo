@@ -1,13 +1,12 @@
 import { PubSub } from '@google-cloud/pubsub';
 import { firestore } from 'firebase-admin';
 import * as functions from 'firebase-functions';
-import { runWith } from 'firebase-functions';
 import { OutboxEvent } from './outbox';
 import { EventDTO } from './types';
 
 type Worker = functions.CloudFunction<functions.firestore.QueryDocumentSnapshot>;
 
-function toDTO(event: OutboxEvent, timeSent: Date): EventDTO {
+export function toDTO(event: OutboxEvent, timeSent: Date): EventDTO {
   return {
     id: event.id,
     topic: event.topic,
