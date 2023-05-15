@@ -9,9 +9,18 @@ export class Repository<T extends Identifiable> {
 
   private __items: { model: T; mode: TrackingMode }[];
 
-  constructor(transaction: Transaction) {
+  private _trackChanges: boolean;
+
+  /**
+   * Only use for instantiating a repository in readonly mode.
+   */
+  readonly transaction: Transaction;
+
+  constructor(transaction: Transaction, trackChanges: boolean = true) {
     this.context = transaction.context;
+    this.transaction = transaction;
     this.__items = [];
+    this._trackChanges = trackChanges;
     transaction.addRepo(this);
   }
 
@@ -61,6 +70,9 @@ export class Repository<T extends Identifiable> {
    * @param item
    */
   protected track(item: T): void {
+    if (!this._trackChanges) {
+      return;
+    }
     let i = 0;
     for (const curr of this.__items) {
       if (item.id === curr.model.id) {

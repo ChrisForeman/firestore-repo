@@ -1,14 +1,23 @@
 import { firestore } from 'firebase-admin';
 import { DocumentTracker } from './document-tracker';
 
+type QueryConstructorData = {
+  query: firestore.Query<firestore.DocumentData>;
+  tracker: DocumentTracker;
+  trackChanges: boolean;
+};
+
 export class Query {
   protected _query: firestore.Query<firestore.DocumentData>;
 
   protected _tracker: DocumentTracker;
 
-  constructor(query: firestore.Query<firestore.DocumentData>, tracker: DocumentTracker) {
-    this._query = query;
-    this._tracker = tracker;
+  protected _trackChanges: boolean;
+
+  constructor(data: QueryConstructorData) {
+    this._query = data.query;
+    this._tracker = data.tracker;
+    this._trackChanges = data.trackChanges;
   }
 
   /**
@@ -29,7 +38,11 @@ export class Query {
     opStr: firestore.WhereFilterOp,
     value: any
   ): Query {
-    return new Query(this._query.where(fieldPath, opStr, value), this._tracker);
+    return new Query({
+      query: this._query.where(fieldPath, opStr, value),
+      tracker: this._tracker,
+      trackChanges: this._trackChanges,
+    });
   }
 
   /**
@@ -48,7 +61,11 @@ export class Query {
     fieldPath: string | firestore.FieldPath,
     directionStr?: firestore.OrderByDirection
   ): Query {
-    return new Query(this._query.orderBy(fieldPath, directionStr), this._tracker);
+    return new Query({
+      query: this._query.orderBy(fieldPath, directionStr),
+      tracker: this._tracker,
+      trackChanges: this._trackChanges,
+    });
   }
 
   /**
@@ -62,7 +79,11 @@ export class Query {
    * @return The created Query.
    */
   limit(limit: number): Query {
-    return new Query(this._query.limit(limit), this._tracker);
+    return new Query({
+      query: this._query.limit(limit),
+      tracker: this._tracker,
+      trackChanges: this._trackChanges,
+    });
   }
 
   /**
@@ -87,11 +108,12 @@ export class Query {
    */
   startAt(...fieldValues: any[]): Query;
   startAt(args: any): Query {
-    if (args instanceof DocumentSnapshot) {
-      return new Query(this._query.startAt(args.wrapped), this._tracker);
-    } else {
-      return new Query(this._query.startAt(args), this._tracker);
-    }
+    const snap = args instanceof DocumentSnapshot ? args.wrapped : args;
+    return new Query({
+      query: this._query.startAt(snap),
+      tracker: this._tracker,
+      trackChanges: this._trackChanges,
+    });
   }
 
   /**
@@ -116,11 +138,12 @@ export class Query {
    */
   startAfter(...fieldValues: any[]): Query;
   startAfter(args: any): Query {
-    if (args instanceof DocumentSnapshot) {
-      return new Query(this._query.startAfter(args.wrapped), this._tracker);
-    } else {
-      return new Query(this._query.startAfter(args), this._tracker);
-    }
+    const snap = args instanceof DocumentSnapshot ? args.wrapped : args;
+    return new Query({
+      query: this._query.startAfter(snap),
+      tracker: this._tracker,
+      trackChanges: this._trackChanges,
+    });
   }
 
   /**
@@ -145,11 +168,12 @@ export class Query {
    */
   endBefore(...fieldValues: any[]): Query;
   endBefore(args: any): Query {
-    if (args instanceof DocumentSnapshot) {
-      return new Query(this._query.endBefore(args.wrapped), this._tracker);
-    } else {
-      return new Query(this._query.endBefore(args), this._tracker);
-    }
+    const snap = args instanceof DocumentSnapshot ? args.wrapped : args;
+    return new Query({
+      query: this._query.endBefore(snap),
+      tracker: this._tracker,
+      trackChanges: this._trackChanges,
+    });
   }
 
   /**
@@ -174,11 +198,12 @@ export class Query {
    */
   endAt(...fieldValues: any[]): Query;
   endAt(args: any): Query {
-    if (args instanceof DocumentSnapshot) {
-      return new Query(this._query.endAt(args.wrapped), this._tracker);
-    } else {
-      return new Query(this._query.endAt(args), this._tracker);
-    }
+    const snap = args instanceof DocumentSnapshot ? args.wrapped : args;
+    return new Query({
+      query: this._query.endAt(snap),
+      tracker: this._tracker,
+      trackChanges: this._trackChanges,
+    });
   }
 
   /**
@@ -186,13 +211,14 @@ export class Query {
    *
    * @return A Promise that will be resolved with the results of the Query.
    */
-  get(): Promise<QuerySnapshot> {
-    return this._query.get().then((snap) => {
+  async get(): Promise<QuerySnapshot> {
+    const snap = await this._query.get();
+    if (this._trackChanges) {
       snap.docs.forEach((doc) => {
         this._tracker.track(doc.ref.path, doc.data());
       });
-      return new QuerySnapshot(this, snap);
-    });
+    }
+    return new QuerySnapshot(this, snap);
   }
 }
 
@@ -278,12 +304,18 @@ export class QueryDocumentSnapshot {
   }
 }
 
+type CollectionReferenceConstructorData = {
+  ref: firestore.CollectionReference;
+  tracker: DocumentTracker;
+  trackChanges: boolean;
+};
+
 export class CollectionReference extends Query {
   private _ref: firestore.CollectionReference;
 
-  constructor(ref: firestore.CollectionReference, tracker: DocumentTracker) {
-    super(ref, tracker);
-    this._ref = ref;
+  constructor(data: CollectionReferenceConstructorData) {
+    super({ query: data.ref, tracker: data.tracker, trackChanges: data.trackChanges });
+    this._ref = data.ref;
   }
 
   get id(): string {
@@ -313,22 +345,28 @@ export class CollectionReference extends Query {
   doc(documentPath: string): DocumentReference;
 
   doc(path?: any): DocumentReference {
-    if (path === undefined) {
-      return new DocumentReference(this._ref.doc(), this._tracker);
-    } else {
-      return new DocumentReference(this._ref.doc(path), this._tracker);
-    }
+    const ref = path === undefined ? this._ref.doc() : this._ref.doc(path);
+    return new DocumentReference({ ref, tracker: this._tracker, trackChanges: this._trackChanges });
   }
 }
+
+type DocumentReferenceConstructorData = {
+  ref: firestore.DocumentReference<firestore.DocumentData>;
+  tracker: DocumentTracker;
+  trackChanges: boolean;
+};
 
 export class DocumentReference {
   private _ref: firestore.DocumentReference<firestore.DocumentData>;
 
   private _tracker: DocumentTracker;
 
-  constructor(ref: firestore.DocumentReference<firestore.DocumentData>, tracker: DocumentTracker) {
-    this._ref = ref;
-    this._tracker = tracker;
+  protected _trackChanges: boolean;
+
+  constructor(data: DocumentReferenceConstructorData) {
+    this._ref = data.ref;
+    this._tracker = data.tracker;
+    this._trackChanges = data.trackChanges;
   }
 
   get id(): string {
@@ -347,7 +385,11 @@ export class DocumentReference {
    * @return The `CollectionReference` instance.
    */
   collection(collectionPath: string): CollectionReference {
-    return new CollectionReference(this._ref.collection(collectionPath), this._tracker);
+    return new CollectionReference({
+      ref: this._ref.collection(collectionPath),
+      tracker: this._tracker,
+      trackChanges: this._trackChanges,
+    });
   }
 
   /**
@@ -356,11 +398,12 @@ export class DocumentReference {
    * @return A Promise resolved with a DocumentSnapshot containing the
    * current document contents.
    */
-  get(): Promise<DocumentSnapshot> {
-    return this._ref.get().then((doc) => {
+  async get(): Promise<DocumentSnapshot> {
+    const doc = await this._ref.get();
+    if (this._trackChanges) {
       this._tracker.track(doc.ref.path, doc.data());
-      return new DocumentSnapshot(this, doc);
-    });
+    }
+    return new DocumentSnapshot(this, doc);
   }
 }
 

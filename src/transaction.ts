@@ -3,6 +3,7 @@ import { DocumentTracker } from './document-tracker';
 import { Identifiable } from './types';
 import { Repository } from './repository';
 import { DBContext } from './db-context';
+import { CollectionReference, DocumentReference } from './wrapped';
 
 export class Transaction {
   private _transaction: admin.firestore.Transaction;

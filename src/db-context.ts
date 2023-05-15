@@ -19,8 +19,12 @@ export class DBContext {
    * @param collectionPath A slash-separated path to a collection.
    * @return The `CollectionReference` instance.
    */
-  collection(collectionPath: string): CollectionReference {
-    return new CollectionReference(this._firestore.collection(collectionPath), this._tracker);
+  collection(collectionPath: string, trackChanges: boolean = true): CollectionReference {
+    return new CollectionReference({
+      ref: this._firestore.collection(collectionPath),
+      tracker: this._tracker,
+      trackChanges,
+    });
   }
 
   /**
@@ -30,7 +34,11 @@ export class DBContext {
    * @param documentPath A slash-separated path to a document.
    * @return The `DocumentReference` instance.
    */
-  doc(documentPath: string): DocumentReference {
-    return new DocumentReference(this._firestore.doc(documentPath), this._tracker);
+  doc(documentPath: string, trackChanges: boolean = true): DocumentReference {
+    return new DocumentReference({
+      ref: this._firestore.doc(documentPath),
+      tracker: this._tracker,
+      trackChanges,
+    });
   }
 }
