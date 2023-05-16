@@ -9,7 +9,7 @@ export class Repository<T extends Identifiable> {
 
   private __items: { model: T; mode: TrackingMode }[];
 
-  private _trackChanges: boolean;
+  protected readonly trackChanges: boolean;
 
   /**
    * Only use for instantiating a repository in readonly mode.
@@ -20,7 +20,7 @@ export class Repository<T extends Identifiable> {
     this.context = transaction.context;
     this.transaction = transaction;
     this.__items = [];
-    this._trackChanges = trackChanges;
+    this.trackChanges = trackChanges;
     transaction.addRepo(this);
   }
 
@@ -70,7 +70,7 @@ export class Repository<T extends Identifiable> {
    * @param item
    */
   protected track(item: T): void {
-    if (!this._trackChanges) {
+    if (!this.trackChanges) {
       return;
     }
     let i = 0;
