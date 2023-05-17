@@ -1,6 +1,6 @@
 import * as admin from 'firebase-admin';
 import { DocumentTracker } from './document-tracker';
-import { CollectionReference, DocumentReference } from './wrapped';
+import { CollectionReferenceDeprecated, DocumentReferenceDeprecated } from './wrapped-deprecated';
 
 export class DBContext {
   private _firestore: admin.firestore.Firestore;
@@ -19,8 +19,8 @@ export class DBContext {
    * @param collectionPath A slash-separated path to a collection.
    * @return The `CollectionReference` instance.
    */
-  collection(collectionPath: string, trackChanges: boolean = true): CollectionReference {
-    return new CollectionReference({
+  collection(collectionPath: string, trackChanges: boolean = true): CollectionReferenceDeprecated {
+    return new CollectionReferenceDeprecated({
       ref: this._firestore.collection(collectionPath),
       tracker: this._tracker,
       trackChanges,
@@ -34,8 +34,8 @@ export class DBContext {
    * @param documentPath A slash-separated path to a document.
    * @return The `DocumentReference` instance.
    */
-  doc(documentPath: string, trackChanges: boolean = true): DocumentReference {
-    return new DocumentReference({
+  doc(documentPath: string, trackChanges: boolean = true): DocumentReferenceDeprecated {
+    return new DocumentReferenceDeprecated({
       ref: this._firestore.doc(documentPath),
       tracker: this._tracker,
       trackChanges,

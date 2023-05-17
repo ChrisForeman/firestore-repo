@@ -1,35 +1,24 @@
 import { firestore } from 'firebase-admin';
 import { DocumentTracker } from './document-tracker';
-import { Transaction } from './transaction';
-import {
-  CollectionReference,
-  DocumentReference,
-  DocumentSnapshot,
-  Query,
-  QueryDocumentSnapshot,
-} from './types';
+import { DocumentReference, DocumentSnapshot, Query, QuerySnapshot } from './types';
 
 type QueryConstructorData = {
   query: firestore.Query<firestore.DocumentData>;
   tracker: DocumentTracker;
   trackChanges: boolean;
-  transaction: Transaction;
 };
 
-export class QueryDefault implements Query {
+export class QueryDeprecated implements Query {
   protected _query: firestore.Query<firestore.DocumentData>;
 
   protected _tracker: DocumentTracker;
 
   protected _trackChanges: boolean;
 
-  protected _transaction: Transaction;
-
   constructor(data: QueryConstructorData) {
     this._query = data.query;
     this._tracker = data.tracker;
     this._trackChanges = data.trackChanges;
-    this._transaction = data.transaction;
   }
 
   /**
@@ -50,11 +39,10 @@ export class QueryDefault implements Query {
     opStr: firestore.WhereFilterOp,
     value: any
   ): Query {
-    return new QueryDefault({
+    return new QueryDeprecated({
       query: this._query.where(fieldPath, opStr, value),
       tracker: this._tracker,
       trackChanges: this._trackChanges,
-      transaction: this._transaction,
     });
   }
 
@@ -74,11 +62,10 @@ export class QueryDefault implements Query {
     fieldPath: string | firestore.FieldPath,
     directionStr?: firestore.OrderByDirection
   ): Query {
-    return new QueryDefault({
+    return new QueryDeprecated({
       query: this._query.orderBy(fieldPath, directionStr),
       tracker: this._tracker,
       trackChanges: this._trackChanges,
-      transaction: this._transaction,
     });
   }
 
@@ -93,11 +80,10 @@ export class QueryDefault implements Query {
    * @return The created Query.
    */
   limit(limit: number): Query {
-    return new QueryDefault({
+    return new QueryDeprecated({
       query: this._query.limit(limit),
       tracker: this._tracker,
       trackChanges: this._trackChanges,
-      transaction: this._transaction,
     });
   }
 
@@ -123,12 +109,11 @@ export class QueryDefault implements Query {
    */
   startAt(...fieldValues: any[]): Query;
   startAt(args: any): Query {
-    const snap = args instanceof DocumentSnapshotDefault ? args.wrapped : args;
-    return new QueryDefault({
+    const snap = args instanceof DocumentSnapshotDeprecated ? args.wrapped : args;
+    return new QueryDeprecated({
       query: this._query.startAt(snap),
       tracker: this._tracker,
       trackChanges: this._trackChanges,
-      transaction: this._transaction,
     });
   }
 
@@ -154,12 +139,11 @@ export class QueryDefault implements Query {
    */
   startAfter(...fieldValues: any[]): Query;
   startAfter(args: any): Query {
-    const snap = args instanceof DocumentSnapshotDefault ? args.wrapped : args;
-    return new QueryDefault({
+    const snap = args instanceof DocumentSnapshotDeprecated ? args.wrapped : args;
+    return new QueryDeprecated({
       query: this._query.startAfter(snap),
       tracker: this._tracker,
       trackChanges: this._trackChanges,
-      transaction: this._transaction,
     });
   }
 
@@ -185,12 +169,11 @@ export class QueryDefault implements Query {
    */
   endBefore(...fieldValues: any[]): Query;
   endBefore(args: any): Query {
-    const snap = args instanceof DocumentSnapshotDefault ? args.wrapped : args;
-    return new QueryDefault({
+    const snap = args instanceof DocumentSnapshotDeprecated ? args.wrapped : args;
+    return new QueryDeprecated({
       query: this._query.endBefore(snap),
       tracker: this._tracker,
       trackChanges: this._trackChanges,
-      transaction: this._transaction,
     });
   }
 
@@ -216,12 +199,11 @@ export class QueryDefault implements Query {
    */
   endAt(...fieldValues: any[]): Query;
   endAt(args: any): Query {
-    const snap = args instanceof DocumentSnapshotDefault ? args.wrapped : args;
-    return new QueryDefault({
+    const snap = args instanceof DocumentSnapshotDeprecated ? args.wrapped : args;
+    return new QueryDeprecated({
       query: this._query.endAt(snap),
       tracker: this._tracker,
       trackChanges: this._trackChanges,
-      transaction: this._transaction,
     });
   }
 
@@ -231,20 +213,17 @@ export class QueryDefault implements Query {
    * @return A Promise that will be resolved with the results of the Query.
    */
   async get(): Promise<QuerySnapshot> {
-    // Optimization: Read the documents outside of transaction to avoid locking it.
-    if (!this._trackChanges) {
-      const snap = await this._query.get();
-      return new QuerySnapshot(this, snap);
+    const snap = await this._query.get();
+    if (this._trackChanges) {
+      snap.docs.forEach((doc) => {
+        this._tracker.track(doc.ref.path, doc.data());
+      });
     }
-    const snap = await this._transaction.get(this._query);
-    snap.docs.forEach((doc) => {
-      this._tracker.track(doc.ref.path, doc.data());
-    });
-    return new QuerySnapshot(this, snap);
+    return new QuerySnapshotDeprecated(this, snap);
   }
 }
 
-export class QuerySnapshot {
+export class QuerySnapshotDeprecated implements QuerySnapshot {
   private _snapshot: firestore.QuerySnapshot;
 
   /**
@@ -259,8 +238,8 @@ export class QuerySnapshot {
   }
 
   /** An array of all the documents in the QuerySnapshot. */
-  get docs(): Array<QueryDocumentSnapshot> {
-    return this._snapshot.docs.map((doc) => new QueryDocumentSnapshotDefault(doc));
+  get docs(): Array<QueryDocumentSnapshotDeprecated> {
+    return this._snapshot.docs.map((doc) => new QueryDocumentSnapshotDeprecated(doc));
   }
 
   /** The number of documents in the QuerySnapshot. */
@@ -279,7 +258,7 @@ export class QuerySnapshot {
   }
 }
 
-export class QueryDocumentSnapshotDefault implements QueryDocumentSnapshot {
+export class QueryDocumentSnapshotDeprecated {
   private _snapshot: firestore.QueryDocumentSnapshot<firestore.DocumentData>;
 
   constructor(snapshot: firestore.QueryDocumentSnapshot<firestore.DocumentData>) {
@@ -330,19 +309,13 @@ type CollectionReferenceConstructorData = {
   ref: firestore.CollectionReference;
   tracker: DocumentTracker;
   trackChanges: boolean;
-  transaction: Transaction;
 };
 
-export class CollectionReferenceDefault extends QueryDefault implements CollectionReference {
+export class CollectionReferenceDeprecated extends QueryDeprecated implements Query {
   private _ref: firestore.CollectionReference;
 
   constructor(data: CollectionReferenceConstructorData) {
-    super({
-      query: data.ref,
-      tracker: data.tracker,
-      trackChanges: data.trackChanges,
-      transaction: data.transaction,
-    });
+    super({ query: data.ref, tracker: data.tracker, trackChanges: data.trackChanges });
     this._ref = data.ref;
   }
 
@@ -361,7 +334,7 @@ export class CollectionReferenceDefault extends QueryDefault implements Collecti
    *
    * @return The `DocumentReference` instance.
    */
-  doc(): DocumentReference;
+  doc(): DocumentReferenceDeprecated;
 
   /**
    * Get a `DocumentReference` for the document within the collection at the
@@ -370,15 +343,14 @@ export class CollectionReferenceDefault extends QueryDefault implements Collecti
    * @param documentPath A slash-separated path to a document.
    * @return The `DocumentReference` instance.
    */
-  doc(documentPath: string): DocumentReference;
+  doc(documentPath: string): DocumentReferenceDeprecated;
 
-  doc(path?: any): DocumentReference {
+  doc(path?: any): DocumentReferenceDeprecated {
     const ref = path === undefined ? this._ref.doc() : this._ref.doc(path);
-    return new DocumentReferenceDefault({
+    return new DocumentReferenceDeprecated({
       ref,
       tracker: this._tracker,
       trackChanges: this._trackChanges,
-      transaction: this._transaction,
     });
   }
 }
@@ -387,23 +359,19 @@ type DocumentReferenceConstructorData = {
   ref: firestore.DocumentReference<firestore.DocumentData>;
   tracker: DocumentTracker;
   trackChanges: boolean;
-  transaction: Transaction;
 };
 
-export class DocumentReferenceDefault implements DocumentReference {
+export class DocumentReferenceDeprecated implements DocumentReference {
   private _ref: firestore.DocumentReference<firestore.DocumentData>;
 
   private _tracker: DocumentTracker;
 
   protected _trackChanges: boolean;
 
-  protected _transaction: Transaction;
-
   constructor(data: DocumentReferenceConstructorData) {
     this._ref = data.ref;
     this._tracker = data.tracker;
     this._trackChanges = data.trackChanges;
-    this._transaction = data.transaction;
   }
 
   get id(): string {
@@ -421,12 +389,11 @@ export class DocumentReferenceDefault implements DocumentReference {
    * @param collectionPath A slash-separated path to a collection.
    * @return The `CollectionReference` instance.
    */
-  collection(collectionPath: string): CollectionReference {
-    return new CollectionReferenceDefault({
+  collection(collectionPath: string): CollectionReferenceDeprecated {
+    return new CollectionReferenceDeprecated({
       ref: this._ref.collection(collectionPath),
       tracker: this._tracker,
       trackChanges: this._trackChanges,
-      transaction: this._transaction,
     });
   }
 
@@ -436,26 +403,23 @@ export class DocumentReferenceDefault implements DocumentReference {
    * @return A Promise resolved with a DocumentSnapshot containing the
    * current document contents.
    */
-  async get(): Promise<DocumentSnapshot> {
-    // Optimization: avoid locking the document
-    if (!this._trackChanges) {
-      const doc = await this._ref.get();
-      return new DocumentSnapshotDefault(this, doc);
+  async get(): Promise<DocumentSnapshotDeprecated> {
+    const doc = await this._ref.get();
+    if (this._trackChanges) {
+      this._tracker.track(doc.ref.path, doc.data());
     }
-    const doc = await this._transaction.get(this._ref);
-    this._tracker.track(doc.ref.path, doc.data());
-    return new DocumentSnapshotDefault(this, doc);
+    return new DocumentSnapshotDeprecated(this, doc);
   }
 }
 
-export class DocumentSnapshotDefault implements DocumentSnapshot {
+export class DocumentSnapshotDeprecated implements DocumentSnapshot {
   private _wrapped: firestore.DocumentSnapshot<firestore.DocumentData>;
 
   /** A `DocumentReference` to the document location. */
-  readonly ref: DocumentReference;
+  readonly ref: DocumentReferenceDeprecated;
 
   constructor(
-    ref: DocumentReference,
+    ref: DocumentReferenceDeprecated,
     snapshot: firestore.DocumentSnapshot<firestore.DocumentData>
   ) {
     this.ref = ref;

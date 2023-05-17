@@ -1,9 +1,9 @@
 import * as admin from 'firebase-admin';
 import { DocumentTracker } from './document-tracker';
-import { Identifiable } from './types';
+import { Identifiable, CollectionReference, DocumentReference } from './types';
 import { Repository } from './repository';
 import { DBContext } from './db-context';
-import { CollectionReference, DocumentReference } from './wrapped';
+import { DocumentReferenceDefault, CollectionReferenceDefault } from './wrapped';
 
 export class Transaction {
   private _transaction: admin.firestore.Transaction;
@@ -14,6 +14,9 @@ export class Transaction {
 
   private _firestore: admin.firestore.Firestore;
 
+  /**
+   * @deprecated Use this collection and doc methods to get a reference to firestore.
+   */
   readonly context: DBContext;
 
   constructor(transaction: admin.firestore.Transaction, firestore: admin.firestore.Firestore) {
@@ -22,6 +25,66 @@ export class Transaction {
     this._repos = [];
     this._firestore = firestore;
     this.context = new DBContext(firestore, this._tracker);
+  }
+
+  /**
+   * Retrieves a query result. Holds a pessimistic lock on all returned
+   * documents.
+   *
+   * @param query A query to execute.
+   * @return A QuerySnapshot for the retrieved data.
+   */
+  get<T>(query: admin.firestore.Query<T>): Promise<admin.firestore.QuerySnapshot<T>>;
+  /**
+   * Reads the document referenced by the provided `DocumentReference.`
+   * Holds a pessimistic lock on the returned document.
+   *
+   * @param documentRef A reference to the document to be read.
+   * @return A DocumentSnapshot for the read data.
+   */
+  get<T>(
+    documentRef: admin.firestore.DocumentReference<T>
+  ): Promise<admin.firestore.DocumentSnapshot<T>>;
+  get<T>(
+    arg: admin.firestore.Query<T> | admin.firestore.DocumentReference<T>
+  ): Promise<admin.firestore.QuerySnapshot<T> | admin.firestore.DocumentSnapshot<T>> {
+    if (arg instanceof admin.firestore.Query) {
+      return this._transaction.get(arg);
+    } else {
+      return this._transaction.get(arg);
+    }
+  }
+
+  /**
+   * Gets a `CollectionReference` instance that refers to the collection at
+   * the specified path.
+   *
+   * @param collectionPath A slash-separated path to a collection.
+   * @return The `CollectionReference` instance.
+   */
+  collection(collectionPath: string, trackChanges: boolean = true): CollectionReference {
+    return new CollectionReferenceDefault({
+      ref: this._firestore.collection(collectionPath),
+      tracker: this._tracker,
+      trackChanges,
+      transaction: this,
+    });
+  }
+
+  /**
+   * Gets a `DocumentReference` instance that refers to the document at the
+   * specified path.
+   *
+   * @param documentPath A slash-separated path to a document.
+   * @return The `DocumentReference` instance.
+   */
+  doc(documentPath: string, trackChanges: boolean = true): DocumentReference {
+    return new DocumentReferenceDefault({
+      ref: this._firestore.doc(documentPath),
+      tracker: this._tracker,
+      trackChanges,
+      transaction: this,
+    });
   }
 
   addRepo<T extends Identifiable>(repo: Repository<T>): void {

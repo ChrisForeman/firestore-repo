@@ -2,7 +2,7 @@ import { firestore } from 'firebase-admin';
 import { Repository } from './repository';
 import { randomId } from './utils';
 import { Transaction } from './transaction';
-import { CollectionReference, DocumentReference } from './wrapped';
+import { CollectionReference, DocumentReference } from './types';
 import * as zlib from 'zlib';
 
 export type OutboxEvent = {

@@ -1,8 +1,7 @@
 import { DBContext } from './db-context';
 import { Transaction } from './transaction';
-import { TrackingMode, Identifiable } from './types';
+import { TrackingMode, Identifiable, DocumentReference } from './types';
 import { RepoOp } from './types';
-import { DocumentReference } from './wrapped';
 
 export class Repository<T extends Identifiable> {
   readonly context: DBContext;
