@@ -14,7 +14,6 @@ export class DocumentTracker {
   }
 
   track(path: string, data: any): void {
-    console.log('Track', path);
     this.reads.set(path, data);
   }
 
