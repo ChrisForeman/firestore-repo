@@ -1,6 +1,6 @@
 import { Repository } from './repository';
 import { Transaction } from './transaction';
-import { CollectionReference, DocumentReference } from './wrapped';
+import { CollectionReference, DocumentReference } from './types';
 
 type Event = {
   id: string;
@@ -12,7 +12,7 @@ export class Inbox extends Repository<Event> {
 
   constructor(collectionPath: string, transaction: Transaction) {
     super(transaction);
-    this._collection = transaction.context.collection(collectionPath);
+    this._collection = transaction.collection(collectionPath);
   }
 
   get(id: string): Promise<Event> {

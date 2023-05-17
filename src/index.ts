@@ -8,7 +8,7 @@ import {
   QueryDocumentSnapshot,
   DocumentSnapshot,
   Query,
-} from './wrapped';
+} from './types';
 import { EventDTO } from './types';
 import { decodeMessage, publishMessage } from './utils';
 import { OutboxWorker } from './outbox-worker';

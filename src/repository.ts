@@ -1,17 +1,25 @@
 import { DBContext } from './db-context';
 import { Transaction } from './transaction';
-import { TrackingMode, Identifiable } from './types';
+import { TrackingMode, Identifiable, DocumentReference } from './types';
 import { RepoOp } from './types';
-import { DocumentReference } from './wrapped';
 
 export class Repository<T extends Identifiable> {
   readonly context: DBContext;
 
   private __items: { model: T; mode: TrackingMode }[];
 
-  constructor(transaction: Transaction) {
+  protected readonly trackChanges: boolean;
+
+  /**
+   * Only use for instantiating a repository in readonly mode.
+   */
+  readonly transaction: Transaction;
+
+  constructor(transaction: Transaction, trackChanges: boolean = true) {
     this.context = transaction.context;
+    this.transaction = transaction;
     this.__items = [];
+    this.trackChanges = trackChanges;
     transaction.addRepo(this);
   }
 
@@ -61,6 +69,9 @@ export class Repository<T extends Identifiable> {
    * @param item
    */
   protected track(item: T): void {
+    if (!this.trackChanges) {
+      return;
+    }
     let i = 0;
     for (const curr of this.__items) {
       if (item.id === curr.model.id) {
