@@ -298,6 +298,8 @@ export type Message = {
   timeCreated: Date;
   timeSent: Date;
   data: any;
+  subscription: string;
+  deliveryAttempt: number;
 };
 
 export type EventDTO = {
