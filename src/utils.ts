@@ -43,6 +43,8 @@ export async function decodeMessage(data: any): Promise<Message> {
   // JSON.parse does not convert date strings to Date objects.
   message.timeCreated = new Date(message.timeCreated);
   message.timeSent = new Date(message.timeSent);
+  message.deliveryAttempt = data.deliveryAttempt ?? 0; // Pubsub adds this property to the body at the same heirarchy level as the message data.
+  message.subscription = data.subscription ?? ''; // Pubsub adds this property to the body at the same heirarchy level as the message data.
   // this package internally compresses message data using gzip.
   const unzipped = await gunzip(Buffer.from(message.data)); // need to convert string to buffer
   message.data = JSON.parse(unzipped.toString());
@@ -71,7 +73,7 @@ const dtoEvent = (event: OutboxEvent, timeSent: Date): EventDTO => ({
   topic: event.topic,
   timeCreated: event.timeCreated.toDate().toISOString(),
   timeSent: timeSent.toISOString(),
-  data: event.data,
+  data: event.data
 });
 
 /**
@@ -93,7 +95,7 @@ export async function publishMessage(
     timeCreated: firestore.Timestamp.now(),
     timeSent: firestore.Timestamp.now(),
     sentToBus: true,
-    data: await compressData(data),
+    data: await compressData(data)
   };
   const json = dtoEvent(event, new Date());
   await pubsub.topic(topic).publishMessage({ json });
